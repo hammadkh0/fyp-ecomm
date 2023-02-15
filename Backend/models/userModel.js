@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: new Date(Date.now()).toISOString(),
   },
-  photo: String,
+  image: String,
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
