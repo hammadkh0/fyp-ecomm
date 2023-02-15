@@ -22,6 +22,7 @@ const {
   restrictTo,
   googleAuth,
 } = require('../controllers/authController');
+const fileUpload = require('../middleware/upload-image');
 
 router.use((req, res, next) => {
   res.header({ 'Access-Control-Allow-Origin': '*' });
@@ -56,7 +57,7 @@ router.get(
 // only access these routes after logging in because of protect middleware
 router.use(protect);
 router.get('/me', getMyAccount, getUserById);
-router.patch('/updateMe', updateMe);
+router.patch('/updateMe', fileUpload.single('image'), updateMe);
 router.patch('/updatePassword', updatePassword);
 router.delete('/deleteMe', deleteMe);
 

@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const HttpError = require('./utils/httpError');
 const errorHandlerGlobal = require('./utils/errorHandler');
@@ -10,6 +11,7 @@ const productRouter = require('./routes/productRoutes');
 require('./controllers/google');
 const app = express();
 
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 app.use(express.json());
 //app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 app.use(cookieParser());
