@@ -48,9 +48,11 @@ const userSchema = new mongoose.Schema({
   providers: [],
   numberOfLogins: {
     type: Number,
+    default: 1,
     minlength: [0, 'Number cannot be negative'],
     maxLength: [4, 'Cannot login more than 4 users'],
   },
+  suppliers: [{ type: mongoose.Schema.ObjectId, ref: 'Supplier' }],
 });
 
 userSchema.pre(/^find/, function (next) {
