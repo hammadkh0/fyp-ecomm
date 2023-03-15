@@ -30,11 +30,13 @@ exports.getSuppliers = catchAsync(async (req, res, next) => {
 
 exports.removeSupplier = catchAsync(async (req, res, next) => {
   await Supplier.findByIdAndDelete(req.params.supplierId);
-  const user = await User.findByIdAndUpdate(
+  let user = await User.findByIdAndUpdate(
     req.user._id,
     { $pull: { suppliers: req.params.supplierId } },
     { new: true }
   );
+
+  user = await user.populate('suppliers');
 
   res.status(200).send({
     status: 'success',

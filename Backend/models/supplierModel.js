@@ -8,7 +8,7 @@ const supplierSchema = new mongoose.Schema({
   p_link: { type: String },
   name: { type: String },
   level: { type: Number },
-  supplierLink: { type: String, unique: true },
+  link: { type: String },
   country: { type: String },
   rating: { type: String },
   previous_orders: { type: String },
