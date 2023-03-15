@@ -3,7 +3,6 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 
 exports.addSupplier = catchAsync(async (req, res, next) => {
-  const supplierData = req.body;
   const supplier = new Supplier(req.body);
   await supplier.save();
 
