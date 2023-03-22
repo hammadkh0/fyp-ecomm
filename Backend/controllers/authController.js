@@ -52,18 +52,31 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new HttpError('Incorrect email or password', 401));
   }
 
-  // (3) If OK, then send token to client.
-  createUserWithToken(user, 200, res);
+  user
+    .incLoginAttempts()
+    .then(() => {
+      // (3) If OK, then send token to client.
+      createUserWithToken(user, 200, res);
+    })
+    .catch((err) => {
+      return next(new HttpError(err.message, 500));
+    });
 });
 
-exports.logout = (req, res) => {
+exports.logout = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const user = await User.findById(userId);
+
+  user.loginAttempts = Math.max(0, user.loginAttempts - 1);
+  await user.save();
+
   res.cookie('jwt', 'loggingout', {
     expires: new Date(Date.now() + 10 * 1000), // 10sec
     httpOnly: true,
   });
 
   res.status(200).send({ status: 'success' });
-};
+});
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on Email

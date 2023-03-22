@@ -46,11 +46,13 @@ const userSchema = new mongoose.Schema({
   passwordResetExpires: Date,
   active: { type: Boolean, default: true, select: false },
   providers: [],
-  numberOfLogins: {
+  loginAttempts: {
     type: Number,
+    default: 1,
     minlength: [0, 'Number cannot be negative'],
     maxLength: [4, 'Cannot login more than 4 users'],
   },
+  suppliers: [{ type: mongoose.Schema.ObjectId, ref: 'Supplier' }],
 });
 
 userSchema.pre(/^find/, function (next) {
@@ -71,6 +73,15 @@ userSchema.pre('save', function (next) {
   // setting the time 1 sec before so that it is ensured that the token is generated before passwordChangedAt updates. This is done as safety as token generation may take some extra time.
   next();
 });
+
+//  This instance method will increment the user on every login attempt.
+userSchema.methods.incLoginAttempts = function () {
+  const maxLoginAttempts = 4;
+  if (this.loginAttempts + 1 > maxLoginAttempts) {
+    return Promise.reject(new Error('Max login attempts reached'));
+  }
+  return this.updateOne({ $inc: { loginAttempts: 1 } }).exec();
+};
 
 // These are the instance method that will be available to any document created.
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {

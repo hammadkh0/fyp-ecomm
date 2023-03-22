@@ -8,6 +8,7 @@ const errorHandlerGlobal = require('./utils/errorHandler');
 const userRouter = require('./routes/userRoutes');
 const productRouter = require('./routes/productRoutes');
 require('./controllers/google');
+const supplierRouter = require('./routes/supplierRoutes');
 const app = express();
 
 app.use(express.json());
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/ecomm/users', userRouter);
 app.use('/ecomm/products', productRouter);
+app.use('/ecomm/suppliers', supplierRouter);
 
 // Invalid routes
 app.all('*', (req, res, next) => {

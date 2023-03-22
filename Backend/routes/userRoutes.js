@@ -29,7 +29,7 @@ router.use((req, res, next) => {
 });
 router.post('/signup', signup);
 router.post('/login', login);
-router.get('/logout', logout);
+router.get('/logout', protect, logout);
 router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
 router.post('/auth/google', googleAuth);
