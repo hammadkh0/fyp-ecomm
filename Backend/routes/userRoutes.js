@@ -28,9 +28,12 @@ router.use((req, res, next) => {
   res.header({ 'Access-Control-Allow-Origin': '*' });
   next();
 });
+router.get('/all', (req, res) => {
+  return res.json({ message: 'hello world' });
+});
 router.post('/signup', signup);
 router.post('/login', login);
-router.get('/logout', logout);
+router.get('/logout', protect, logout);
 router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
 router.post('/auth/google', googleAuth);
