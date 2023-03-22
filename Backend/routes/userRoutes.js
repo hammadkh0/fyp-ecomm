@@ -27,6 +27,9 @@ router.use((req, res, next) => {
   res.header({ 'Access-Control-Allow-Origin': '*' });
   next();
 });
+router.get('/all', (req, res) => {
+  return res.json({ message: 'hello world' });
+});
 router.post('/signup', signup);
 router.post('/login', login);
 router.get('/logout', protect, logout);
