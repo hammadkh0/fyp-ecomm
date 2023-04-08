@@ -19,7 +19,12 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   // -- BUILD QUERY --//
 
   // to allow nested GET reviews on tour based on tourId (just a hack).
-  const docs = new QueryHandler(User.find(), req.query)
+  const docs = new QueryHandler(
+    User.find({ role: { $ne: 'admin' } })
+      .select('+active')
+      .bypass(),
+    req.query
+  )
     .filter()
     .sort()
     .limitFields()
@@ -44,7 +49,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     status: 'success',
     results: users.length,
     data: {
-      users,
+      users: users.map((user) => user.toObject({ getters: true })),
     },
   });
 });
