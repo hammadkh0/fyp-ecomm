@@ -60,7 +60,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getUserById = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id).select('+password +active').bypassInactives();
 
   if (!user) {
     return next(new HttpError('Could not find an account for the provided id!', 404));
@@ -75,15 +75,22 @@ exports.getUserById = catchAsync(async (req, res, next) => {
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  }).bypassInactives();
+  const user = await User.findById(req.params.id).select('+password +active').bypassInactives();
   // bypassInactives is a custom mongoose query method that will bypass the middleware and will not filter out the inactive users. So that we can update the inactive user to active again.
 
   if (!user) {
     return next(new HttpError('No User with that id found', 404));
   }
+
+  user.name = req.body.name || user.name;
+  user.email = req.body.email || user.email;
+  user.role = req.body.role || user.role;
+  user.active = req.body.active || user.active;
+  user.password = req.body.password || user.password;
+  user.passwordConfirm = req.body.passwordConfirm || user.password;
+
+  await user.save();
+
   res.status(200).send({
     status: 'success',
     data: {
