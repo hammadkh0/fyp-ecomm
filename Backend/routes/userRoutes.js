@@ -10,6 +10,7 @@ const {
   deleteMe,
   updateUser,
   deleteUser,
+  createUser,
 } = require('../controllers/userController');
 const {
   signup,
@@ -28,34 +29,19 @@ router.use((req, res, next) => {
   res.header({ 'Access-Control-Allow-Origin': '*' });
   next();
 });
+
+// dummt route for testing
 router.get('/all', (req, res) => {
   return res.json({ message: 'hello world' });
 });
+
+// public routes
 router.post('/signup', signup);
 router.post('/login', login);
 router.get('/logout', protect, logout);
 router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
 router.post('/auth/google', googleAuth);
-
-router.get(
-  '/login/google',
-  passport.authenticate('google', {
-    session: false,
-    scope: ['openid', 'profile', 'email'],
-    prompt: 'select_account',
-  })
-);
-// router.get(
-//   '/login/google/redirect',
-//   passport.authenticate('google', {
-//     session: false,
-//     failureRedirect: '/ecomm/users/login/google',
-//     failureMessage: true,
-//     //successRedirect: '/ecomm/users/me',
-//   }),
-//   googleAuth
-// );
 
 // only access these routes after logging in because of protect middleware
 router.use(protect);
@@ -67,6 +53,7 @@ router.delete('/deleteMe', deleteMe);
 // restrict the routes below to admin roles
 router.use(restrictTo('admin'));
 router.route('/').get(getAllUsers);
+router.route('/createUser').post(createUser);
 router.route('/:id').get(getUserById).patch(updateUser).delete(deleteUser);
 
 module.exports = router;

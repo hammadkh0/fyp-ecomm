@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const QueryHandler = require('../utils/QueryHandler');
+const { createUserWithToken } = require('../utils/createUserWithToken');
 
 const updatableObjects = (obj, ...allowedFields) => {
   const newObj = {};
@@ -15,14 +16,18 @@ const updatableObjects = (obj, ...allowedFields) => {
   return newObj;
 };
 
+exports.createUser = catchAsync(async (req, res, next) => {
+  const newUser = await User.create(req.body);
+  createUserWithToken(newUser, 201, res);
+});
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   // -- BUILD QUERY --//
 
-  // to allow nested GET reviews on tour based on tourId (just a hack).
   const docs = new QueryHandler(
     User.find({ role: { $ne: 'admin' } })
       .select('+active')
-      .bypass(),
+      .bypassInactives(),
     req.query
   )
     .filter()
@@ -32,9 +37,9 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 
   const users = await docs.query;
 
-  // Tour.find() will populate the tour with the user{guide} with the help of pre find middleware
+  // User.find() will populate the user with the help of pre find middleware
 
-  // localhost:8000/tours?fields=name,desciption&sort=price
+  // localhost:8000/users?fields=name,desciption&sort=price
   // {fields: name,description}
   /*
        get the features obj from APIFeaturs class that takes the FIND query and our query string and apply different functions to the query.
@@ -73,7 +78,9 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
-  });
+  }).bypassInactives();
+  // bypassInactives is a custom mongoose query method that will bypass the middleware and will not filter out the inactive users. So that we can update the inactive user to active again.
+
   if (!user) {
     return next(new HttpError('No User with that id found', 404));
   }
@@ -125,8 +132,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 exports.getMyAccount = (req, res, next) => {
-  // just set the req.params.id to the userId of the currently logged in object that will send the user object as a part of requeste using the protect middleware in the authController.
-
+  // just set the req.params.id to the userId of the currently logged in object that will send the user object as a part of request using the protect middleware in the authController.
   req.params.id = req.user.id;
   next();
 };

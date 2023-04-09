@@ -55,7 +55,8 @@ const userSchema = new mongoose.Schema({
   suppliers: [{ type: mongoose.Schema.ObjectId, ref: 'Supplier' }],
 });
 
-userSchema.query.bypass = function () {
+// creating a custom query middleware that will add a query to the find query to avoid filtering out the inactive users.
+userSchema.query.bypassInactives = function () {
   this.bypassMiddleware = true;
   return this;
 };
