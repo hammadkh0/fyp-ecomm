@@ -55,10 +55,21 @@ const userSchema = new mongoose.Schema({
   suppliers: [{ type: mongoose.Schema.ObjectId, ref: 'Supplier' }],
 });
 
+// creating a custom query middleware that will add a query to the find query to avoid filtering out the inactive users.
+userSchema.query.bypassInactives = function () {
+  this.bypassMiddleware = true;
+  return this;
+};
+
 userSchema.pre(/^find/, function (next) {
-  this.find({ active: { $ne: false } });
+  // check if the query is not bypassed. If bypassed then it will not filter out the inactive users.
+  if (!this.bypassMiddleware) {
+    console.log('Middleware is not bypassed');
+    this.find({ active: { $ne: false } });
+  }
   next();
 });
+
 userSchema.pre('save', async function (next) {
   // will only work if password has been modified
   if (!this.isModified('password')) return next();
