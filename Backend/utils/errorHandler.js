@@ -1,3 +1,4 @@
+const fs = require('fs');
 const sendDevelopmentError = (err, req, res) => {
   // API
   if (req.originalUrl.startsWith('/ecomm')) {
@@ -17,6 +18,11 @@ const sendDevelopmentError = (err, req, res) => {
 };
 
 module.exports = (err, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
   err.status = err.status || 'error';
   err.statusCode = err.statusCode || 500;
 
